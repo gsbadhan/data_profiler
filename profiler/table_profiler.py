@@ -26,7 +26,9 @@ class TableProfiler:
 
     def run(self):
         tables = self.adapter.list_tables()
-
+        if self.config["workers"] == 1:
+            return [self.profile_table(t) for t in tables]
+        
         with ThreadPoolExecutor(max_workers=self.config["workers"]) as executor:
             results = list(executor.map(self.profile_table, tables))
 

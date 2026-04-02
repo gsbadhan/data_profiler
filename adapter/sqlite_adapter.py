@@ -1,4 +1,4 @@
-from adapters.base_adapter import DatabaseAdapter
+from adapter.base_adapter import DatabaseAdapter
 import sqlite3
 
 class SQLiteAdapter(DatabaseAdapter):
@@ -13,7 +13,7 @@ class SQLiteAdapter(DatabaseAdapter):
         return [row[0] for row in cursor.fetchall()]
 
     def get_schema(self, table):
-        cursor = self.conn.execute(f"table_info({table})")
+        cursor = self.conn.execute(f"PRAGMA table_info({table})")
         return [
             {
                 "name": row[1],
@@ -28,14 +28,26 @@ class SQLiteAdapter(DatabaseAdapter):
             f"SELECT COUNT(*) FROM {table}"
         ).fetchone()[0]
 
-    def get_column_stats(self, table, column):
-        query = f"""
-        SELECT 
-            MIN({column}),
-            MAX({column}),
-            COUNT(DISTINCT {column})
-        FROM {table}
-        """
+    def get_column_stats(self, table, column, sample_ratio=1.0):
+        if sample_ratio < 1.0:
+            limit = int(1000 * sample_ratio)
+            query = f"""
+            SELECT 
+                MIN({column}),
+                MAX({column}),
+                COUNT(DISTINCT {column})
+            FROM (
+                SELECT {column} FROM {table} LIMIT {limit}
+            )
+            """
+        else:
+            query = f"""
+            SELECT 
+                MIN({column}),
+                MAX({column}),
+                COUNT(DISTINCT {column})
+            FROM {table}
+            """
         return self.conn.execute(query).fetchone()
     
     def get_null_count(self, table, column):
@@ -44,7 +56,6 @@ class SQLiteAdapter(DatabaseAdapter):
         ).fetchone()[0]
 
     def get_histogram(self, table, column, bins):
-        # simple histogram (top values)
         cursor = self.conn.execute(f"""
             SELECT {column}, COUNT(*) as cnt
             FROM {table}
