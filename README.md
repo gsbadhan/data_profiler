@@ -42,3 +42,6 @@
     }
   ]
 }`
+
+## Component design diagram
+![Alt Text](data-profiler-design.png)
