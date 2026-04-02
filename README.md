@@ -1,3 +1,6 @@
+## Description
+ Configurable data-profiling utility that can scan hundreds of tables across different databases and persist a compact summary of table/column metadata and statistics.
+
 ## Project setup
 - uv init data-profiler (optional)
 - uv venv
