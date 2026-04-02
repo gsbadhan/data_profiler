@@ -7,14 +7,14 @@
 - source .venv/bin/activate
 - uv sync
 
-## Testing data setup
+## Manual testing data setup
 - python script/sqlite_db.py
 
 
 ## Run application
 - python main.py
 
-## unit testing
+## Unit tests
 - pytest 
 - pytest --cov=.
 
